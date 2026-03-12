@@ -12,6 +12,7 @@ int main(void)
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawText("raylib is working", 260, 210, 30, DARKGRAY);
+        DrawText("raylib is working", 260, 210, 30, DARKGRAY);
         EndDrawing();
     }
 
