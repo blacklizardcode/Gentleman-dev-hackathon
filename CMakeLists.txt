@@ -7,7 +7,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
-# Keep raylib dependency build lightweight.
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 
@@ -19,5 +18,9 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
-add_executable(MyProgram src/main.c)
+add_executable(MyProgram 
+    src/main.c
+    src/Ui.c 
+)
+
 target_link_libraries(MyProgram PRIVATE raylib)

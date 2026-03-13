@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "Ui.h"
 
 int main(void)
 {
@@ -11,7 +12,8 @@ int main(void)
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        DrawText("raylib is working", 260, 210, 30, DARKGRAY);
+        
+        DrawUi();
         EndDrawing();
     }
 
