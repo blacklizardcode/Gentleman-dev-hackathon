@@ -7,7 +7,9 @@
 TextureEntry myTextures[] = {
     {"basicRoom", "surse/Images/Rooms/basicRoom.png"},
     {"BuyNewRoom", "surse/Images/BuyNewRoom.png"},
-    {"FrontDesk", "surse/Images/Rooms/FrontDesk.png"}
+    {"FrontDesk", "surse/Images/Rooms/FrontDesk.png"}, 
+    {"kitchen", "surse/Images/Rooms/kitchen.png"}, 
+    {"room", "surse/Images/Rooms/room.png"}
 };
 
 int textureCount = sizeof(myTextures) / sizeof(myTextures[0]);

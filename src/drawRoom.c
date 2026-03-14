@@ -15,7 +15,9 @@ static RoomDef rooms[] = {
     {"BuyNewRoom", 100, {0}, false},
     //reume aufgelistet
     {"", 5, {0}, false}, // spacer
+    {"room", 800, {0}, false},
     {"basicRoom", 800, {0}, false}, 
+    {"kitchen", 800, {0}, false},
     {"FrontDesk", 800, {0}, false},
     
 };
