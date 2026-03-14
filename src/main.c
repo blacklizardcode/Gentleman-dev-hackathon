@@ -13,10 +13,11 @@ int textureCount = sizeof(myTextures) / sizeof(myTextures[0]);
 
 int main(void)
 {
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    int screenWidth = 800;
+    int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "Summer game");
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(screenWidth, screenHeight, "TrainBuilder");
     SetTargetFPS(60);
 
     //load Textures ones
