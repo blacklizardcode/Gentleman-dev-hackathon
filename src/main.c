@@ -1,13 +1,14 @@
 #include "raylib.h"
 #include "Ui.h"
 #include "loadTexture.h"
+#include "drawRoom.h"
 
 //texture list
 TextureEntry myTextures[] = {
-    //example
     {"basicRoom", "surse/Images/basicRoom.png"}
 };
 
+int textureCount = sizeof(myTextures) / sizeof(myTextures[0]);
 
 int main(void)
 {
@@ -17,14 +18,20 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Summer game");
     SetTargetFPS(60);
 
+    //load Textures ones
+    LoadAllTextures(myTextures, textureCount);
+
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
-        
+        // begin drawing
+        DrawRoom();
+
         DrawUi();
         EndDrawing();
     }
-
+    //unload images
+    UnLoadTextures();
     CloseWindow();
     return 0;
 }
