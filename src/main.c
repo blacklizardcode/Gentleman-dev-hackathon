@@ -1,5 +1,13 @@
 #include "raylib.h"
 #include "Ui.h"
+#include "loadTexture.h"
+
+//texture list
+TextureEntry myTextures[] = {
+    //example
+    {"basicRoom", "surse/Images/basicRoom.png"}
+};
+
 
 int main(void)
 {
