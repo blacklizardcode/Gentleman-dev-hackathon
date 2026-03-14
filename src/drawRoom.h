@@ -1,2 +1,3 @@
 
-void DrawRoom();
+void DrawRoom(void);
+void UnloadRoomTextures(void);

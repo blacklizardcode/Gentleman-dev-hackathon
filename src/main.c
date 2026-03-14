@@ -5,8 +5,8 @@
 
 //texture list
 TextureEntry myTextures[] = {
-    {"basicRoom", "surse/Images/basicRoom.png"}
-
+    {"basicRoom", "surse/Images/basicRoom.png"},
+    {"BuyNewRoom", "surse/Images/BuyNewRoom.png"}
 };
 
 int textureCount = sizeof(myTextures) / sizeof(myTextures[0]);
@@ -32,7 +32,8 @@ int main(void)
         DrawUi();
         EndDrawing();
     }
-    //unload images
+    UnloadRoomTextures();
+
     UnLoadTextures();
     CloseWindow();
     return 0;
