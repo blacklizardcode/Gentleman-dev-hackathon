@@ -6,7 +6,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "gentleman-dev-hackathon");
+    InitWindow(screenWidth, screenHeight, "Summer game");
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {

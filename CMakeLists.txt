@@ -21,6 +21,7 @@ FetchContent_MakeAvailable(raylib)
 add_executable(MyProgram 
     src/main.c
     src/Ui.c 
+    src/globals.c 
 )
 
 target_link_libraries(MyProgram PRIVATE raylib)
