@@ -13,16 +13,25 @@ typedef struct RoomDef {
 
 static RoomDef rooms[] = {
     {"BuyNewRoom", 100, {0}, false},
-    {"", 5, {0}, false}, // spacer
-    {"basicRoom", 800, {0}, false},
+    //reume aufgelistet
     {"", 5, {0}, false}, // spacer
     {"basicRoom", 800, {0}, false}, 
+    {"FrontDesk", 800, {0}, false},
+    
 };
+
+static int GetRoomHeight(RoomDef* room) {
+    if (room->textureLoaded && room->texture.width > 0) {
+        float aspect = (float)room->texture.height / (float)room->texture.width;
+        return (int)((float)GetScreenWidth() * aspect);
+    }
+    return room->height; // fallback für spacer / fehlende Textur
+}
 
 static int GetTotalWorldHeight(void) {
     int total = 0;
     for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {
-        total += rooms[i].height;
+        total += GetRoomHeight(&rooms[i]);
     }
     return total;
 }
@@ -36,6 +45,7 @@ static void EnsureRoomTexturesLoaded(void) {
         if (img == NULL || img->data == NULL) continue;
         rooms[i].texture = LoadTextureFromImage(*img);
         rooms[i].textureLoaded = true;
+        // height bleibt als Fallback, wird aber live per GetRoomHeight() berechnet
     }
 }
 
@@ -70,25 +80,26 @@ void DrawRoom(void) {
     int yOffset = 0;
     for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {
         RoomDef* room = &rooms[i];
+        int roomH = GetRoomHeight(room);  // immer live berechnen
 
         int roomScreenY = yOffset - (int)cameraY;
 
-        if (roomScreenY + room->height < 0 || roomScreenY > windowHeight) {
-            yOffset += room->height;
+        if (roomScreenY + roomH < 0 || roomScreenY > windowHeight) {
+            yOffset += roomH;
             continue;
         }
 
         if (room->textureLoaded) {
             Rectangle sourceRec = {0, 0, (float)room->texture.width, (float)room->texture.height};
-            Rectangle destRec   = {0, (float)roomScreenY, (float)windowWidth, (float)room->height};
+            Rectangle destRec   = {0, (float)roomScreenY, (float)windowWidth, (float)roomH};
             DrawTexturePro(room->texture, sourceRec, destRec, (Vector2){0,0}, 0.0f, WHITE);
 
-        } else if (rooms[i].name != NULL && rooms[i].name[0] != '\0') {
-            DrawRectangle(0, roomScreenY, windowWidth, room->height, LIGHTGRAY);
+        } else if (room->name != NULL && room->name[0] != '\0') {
+            DrawRectangle(0, roomScreenY, windowWidth, roomH, LIGHTGRAY);
             DrawText(TextFormat("Missing: %s", room->name), 20, roomScreenY + 20, 20, DARKGRAY);
         }
 
-        yOffset += room->height;
+        yOffset += roomH;
     }
 
     int worldBottomOnScreen = worldHeight - (int)cameraY;
