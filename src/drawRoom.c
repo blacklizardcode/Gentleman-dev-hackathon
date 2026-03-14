@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "loadTexture.h"
 #include "Ui.h"
 
 void DrawRoom() {

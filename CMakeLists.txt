@@ -27,3 +27,9 @@ add_executable(MyProgram
 )
 
 target_link_libraries(MyProgram PRIVATE raylib)
+
+add_custom_command(TARGET MyProgram POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/src/surse
+    $<TARGET_FILE_DIR:MyProgram>/surse
+)
