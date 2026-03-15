@@ -2,6 +2,20 @@
 #include <stdio.h>
 #include <string.h>
 
+// Helper: build a full path relative to the running executable.
+static void BuildFullPath(char *out, size_t outSize, const char *relativePath) {
+    const char *appDir = GetApplicationDirectory();
+    if (appDir == NULL || appDir[0] == '\0') {
+        // Fallback: use relative path directly if we somehow can't determine the application directory.
+        strncpy(out, relativePath, outSize - 1);
+        out[outSize - 1] = '\0';
+        return;
+    }
+
+    // Ensure we don't overflow.
+    snprintf(out, outSize, "%s/%s", appDir, relativePath);
+}
+
 //copied from my old projeckt
 static ManagedImage images[MAX_IMAGES];
 static int imageCount = 0;
@@ -15,8 +29,11 @@ Image* LoadTextures(const char* name, const char* path) {
     }
     
     if (imageCount < MAX_IMAGES) {
-        printf("LoadTexture '%s' from: %s\n", name, path);
-        Image img = LoadImage(path);
+        char fullPath[1024] = {0};
+        BuildFullPath(fullPath, sizeof(fullPath), path);
+
+        printf("LoadTexture '%s' from: %s\n", name, fullPath);
+        Image img = LoadImage(fullPath);
         
         if (img.data != NULL) {
             strcpy(images[imageCount].name, name);
@@ -26,7 +43,7 @@ Image* LoadTextures(const char* name, const char* path) {
             printf("Texture '%s' loadet sucsesfully!\n", name);
             return &images[imageCount - 1].image;
         } else {
-            printf("Error Cland loade: '%s' \n", name);
+            printf("Error loading texture '%s' (path: %s)\n", name, fullPath);
         }
     }
     return NULL;
