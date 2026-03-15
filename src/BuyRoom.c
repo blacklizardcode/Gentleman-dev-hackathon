@@ -80,9 +80,7 @@ static const char* GetCardTextureName(const char* roomName) {
 }
 
 // -------------------------------------------------------
-//  Draw Buy-Room UI  — 3 schwebende Karten
-//  Hover-Effekt: simpler weißer Rand (kein gefülltes Rechteck,
-//  da die Karten PNGs mit Transparenz sind).
+//  Draw Buy-Room UI  — 3 floating cards
 // -------------------------------------------------------
 
 void DrawBuyRoomUi(void) {
@@ -127,35 +125,48 @@ void DrawBuyRoomUi(void) {
     totalWidth += (float)(padding * (SELECTED_ROOM_COUNT - 1));
 
     // --- Draw cards ---
+    // Collect dest-rectangles so we can later check outside-click
+    Rectangle cardDest[SELECTED_ROOM_COUNT];
     float curX = (sw - totalWidth) / 2.0f;
     for (int i = 0; i < SELECTED_ROOM_COUNT; i++) {
+        cardDest[i] = (Rectangle){0};
         if (cardTex[i].id == 0) { curX += padding; continue; }
 
         float cardY = (sh - scaledH[i]) / 2.0f;
         Rectangle src  = {0, 0, (float)cardTex[i].width, (float)cardTex[i].height};
         Rectangle dest = {curX, cardY, scaledW[i], scaledH[i]};
+        cardDest[i] = dest;
 
         // Draw the card PNG (transparency is respected by raylib automatically)
         DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, WHITE);
 
-        // --- Hover: simpler weißer Rand ---
-        // Wir zeichnen den Rahmen um das Bounding-Rectangle der Karte.
-        // Da es ein PNG ist, bleibt der Hintergrund dahinter sichtbar;
-        // ein gefülltes Rechteck würde die Transparenz überdecken,
-        // daher nur DrawRectangleLinesEx.
+        // --- Hover: white border ---
         if (IsCardHovered(dest)) {
-            // Rand 3px innen damit er nicht über andere Karten ragt
             Rectangle border = {dest.x + 2, dest.y + 2, dest.width - 4, dest.height - 4};
             DrawRectangleLinesEx(border, 3, WHITE);
 
-            // --- Klick: Zimmer kaufen ---
+            // --- Click: buy room ---
             if (IsCardClicked(dest)) {
-                // TODO: Kauflogik hier einfügen
-                // Beispiel: AddRoomToHotel(selectedRooms[i]);
-                RoomSelect = false; // Menü schließen
+                // TODO: add purchase logic here
+                // e.g.: AddRoomToHotel(selectedRooms[i]);
+                RoomSelect = false;
             }
         }
 
         curX += scaledW[i] + padding;
+    }
+
+    // --- Click outside all cards closes the menu ---
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        bool overAnyCard = false;
+        for (int i = 0; i < SELECTED_ROOM_COUNT; i++) {
+            if (cardDest[i].width > 0 && IsMouseOverRect(cardDest[i])) {
+                overAnyCard = true;
+                break;
+            }
+        }
+        if (!overAnyCard) {
+            RoomSelect = false;
+        }
     }
 }
