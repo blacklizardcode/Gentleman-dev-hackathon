@@ -24,4 +24,8 @@ struct Rooms {
     enum RoomTypes roomtype;
 };
 extern int Roomcount;
+/*-------------------------------------------------
+    Buy Room
+-------------------------------------------------*/
+extern bool RoomSelect;
 

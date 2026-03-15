@@ -26,6 +26,7 @@ add_executable(MyProgram
     src/moove.c
     src/mouse.c
     src/globals.c
+    src/BuyRoom.c
 )
 
 target_link_libraries(MyProgram PRIVATE raylib)

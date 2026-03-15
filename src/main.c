@@ -1,7 +1,9 @@
 #include "raylib.h"
 #include "Ui.h"
 #include "loadTexture.h"
+#include "globals.h"
 #include "drawRoom.h"
+#include "BuyRoom.h"
 
 //texture list
 TextureEntry myTextures[] = {
@@ -33,6 +35,12 @@ int main(void)
         DrawRoom();
 
         DrawUi();
+
+        if (RoomSelect) {
+            DrawBuyRoomUi();
+        }
+            
+
         EndDrawing();
     }
     UnloadRoomTextures();
