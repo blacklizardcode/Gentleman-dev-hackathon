@@ -14,11 +14,7 @@ typedef struct {
 extern const RoomType RoomTypes[];
 extern const int RoomTypesCount;
 
-extern bool RoomOwned[];      // same length as RoomTypes
-extern int Roomcount;         // number of owned rooms
-
-bool IsRoomOwned(const char *name);
-void SetRoomOwned(const char *name, bool owned);
+// (No ownership tracking; all rooms are available to build.)
 
 /*-------------------------------------------------
     Buy Room

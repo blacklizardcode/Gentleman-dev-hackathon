@@ -5,7 +5,6 @@
 #include "Ui.h"
 #include "moove.h"
 #include "mouse.h"
-#include "globals.h"
 
 
 typedef struct RoomDef {
@@ -16,10 +15,10 @@ typedef struct RoomDef {
 } RoomDef;
 
 static bool ShouldShowRoom(const RoomDef *room) {
-    // Always show the buy button or spacers.
-    if (room->name == NULL || room->name[0] == '\0') return true;
-    if (strcmp(room->name, "BuyNewRoom") == 0) return true;
-    return IsRoomOwned(room->name);
+    // Show all rooms and UI elements (we no longer gate rooms by ownership).
+    // This allows the player to scroll through and build any room at any time.
+    (void)room;
+    return true;
 }
 
 static RoomDef rooms[] = {
