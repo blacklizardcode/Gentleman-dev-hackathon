@@ -1,8 +1,8 @@
 #include "raylib.h"
 #include "loadTexture.h"
 #include "Ui.h"
+#include "moove.h"
 
-static float cameraY = 0.0f;
 
 typedef struct RoomDef {
     const char* name;
@@ -51,25 +51,6 @@ static void EnsureRoomTexturesLoaded(void) {
     }
 }
 
-static void UpdateRoomCamera(float deltaTime) {
-    const float speed = 400.0f;
-
-    if (IsKeyDown(KEY_W)) cameraY -= speed * deltaTime;
-    if (IsKeyDown(KEY_S)) cameraY += speed * deltaTime;
-
-    int windowHeight = GetScreenHeight();
-    int worldHeight  = GetTotalWorldHeight();
-
-    if (windowHeight >= worldHeight) {
-        cameraY = 0.0f;
-        return;
-    }
-
-    if (cameraY < 0.0f) cameraY = 0.0f;
-    if (cameraY > (float)(worldHeight - windowHeight))
-        cameraY = (float)(worldHeight - windowHeight);
-}
-
 void DrawRoom(void) {
     EnsureRoomTexturesLoaded();
 
@@ -77,7 +58,8 @@ void DrawRoom(void) {
     int windowHeight = GetScreenHeight();
     int worldHeight  = GetTotalWorldHeight();
 
-    UpdateRoomCamera(GetFrameTime());
+    Camera_Update(worldHeight, windowHeight, GetFrameTime());
+    float cameraY = Camera_GetY();
 
     int yOffset = 0;
     for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {

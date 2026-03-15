@@ -23,6 +23,7 @@ add_executable(MyProgram
     src/UI.c
     src/drawRoom.c 
     src/loadTexture.c 
+    src/moove.c
     src/globals.c
 )
 
