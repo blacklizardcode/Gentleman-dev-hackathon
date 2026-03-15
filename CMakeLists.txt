@@ -24,6 +24,7 @@ add_executable(MyProgram
     src/drawRoom.c 
     src/loadTexture.c 
     src/moove.c
+    src/mouse.c
     src/globals.c
 )
 
