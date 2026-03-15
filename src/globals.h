@@ -21,3 +21,6 @@ extern const int RoomTypesCount;
 -------------------------------------------------*/
 extern bool RoomSelect;
 
+//level
+extern int levl;
+

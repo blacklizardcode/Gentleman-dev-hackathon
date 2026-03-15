@@ -5,7 +5,8 @@
 #include "Ui.h"
 #include "moove.h"
 #include "mouse.h"
-
+#include "globals.h"
+#include "BuyRoom.h"
 
 typedef struct RoomDef {
     const char* name;
@@ -15,21 +16,18 @@ typedef struct RoomDef {
 } RoomDef;
 
 static bool ShouldShowRoom(const RoomDef *room) {
-    // Show all rooms and UI elements (we no longer gate rooms by ownership).
-    // This allows the player to scroll through and build any room at any time.
     (void)room;
     return true;
 }
 
 static RoomDef rooms[] = {
     {"BuyNewRoom", 100, {0}, false},
-    //Rume list
+    // Room list
     {"", 5, {0}, false}, // spacer
     {"room", 800, {0}, false},
-    {"basicRoom", 800, {0}, false}, 
+    {"basicRoom", 800, {0}, false},
     {"kitchen", 800, {0}, false},
     {"FrontDesk", 800, {0}, false},
-    
 };
 
 static int GetRoomHeight(RoomDef* room) {
@@ -37,7 +35,7 @@ static int GetRoomHeight(RoomDef* room) {
         float aspect = (float)room->texture.height / (float)room->texture.width;
         return (int)((float)GetScreenWidth() * aspect);
     }
-    return room->height; 
+    return room->height;
 }
 
 static int GetTotalWorldHeight(void) {
@@ -79,7 +77,7 @@ void DrawRoom(void) {
         RoomDef* room = &rooms[i];
         if (!ShouldShowRoom(room)) continue;
 
-        int roomH = GetRoomHeight(room); 
+        int roomH       = GetRoomHeight(room);
         int roomScreenY = yOffset - (int)cameraY;
 
         if (roomScreenY + roomH < 0 || roomScreenY > windowHeight) {
@@ -92,8 +90,7 @@ void DrawRoom(void) {
 
         if (room->textureLoaded) {
             Rectangle sourceRec = {0, 0, (float)room->texture.width, (float)room->texture.height};
-            DrawTexturePro(room->texture, sourceRec, destRec, (Vector2){0,0}, 0.0f, WHITE);
-
+            DrawTexturePro(room->texture, sourceRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
         } else if (room->name != NULL && room->name[0] != '\0') {
             DrawRectangleRec(destRec, LIGHTGRAY);
             DrawText(TextFormat("Missing: %s", room->name), 20, roomScreenY + 20, 20, DARKGRAY);
@@ -101,6 +98,13 @@ void DrawRoom(void) {
 
         if (hover) {
             DrawRectangleLinesEx(destRec, 4, WHITE);
+
+            // --- Click on "BuyNewRoom" button opens the buy menu ---
+            if (strcmp(room->name, "BuyNewRoom") == 0 && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                // Re-roll the selection each time the button is pressed
+                GenerateRoomSelection();
+                RoomSelect = true;
+            }
         }
 
         yOffset += roomH;
