@@ -7,5 +7,10 @@
 
 
 void DrawBuyRoomUi() {
+    int height = 150;
+    int width = 100;
+    int positionx = width / 2 - GetScreenWidth();
+    int positiony = height / 2 - GetScreenHeight();
 
+    //DrawTexture();
 }

@@ -1,9 +1,11 @@
 #include "raylib.h"
 #include <stddef.h>
+#include <string.h>
 #include "loadTexture.h"
 #include "Ui.h"
 #include "moove.h"
 #include "mouse.h"
+#include "globals.h"
 
 
 typedef struct RoomDef {
@@ -12,6 +14,13 @@ typedef struct RoomDef {
     Texture2D texture;
     bool textureLoaded;
 } RoomDef;
+
+static bool ShouldShowRoom(const RoomDef *room) {
+    // Always show the buy button or spacers.
+    if (room->name == NULL || room->name[0] == '\0') return true;
+    if (strcmp(room->name, "BuyNewRoom") == 0) return true;
+    return IsRoomOwned(room->name);
+}
 
 static RoomDef rooms[] = {
     {"BuyNewRoom", 100, {0}, false},
@@ -35,7 +44,9 @@ static int GetRoomHeight(RoomDef* room) {
 static int GetTotalWorldHeight(void) {
     int total = 0;
     for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {
-        total += GetRoomHeight(&rooms[i]);
+        RoomDef *room = &rooms[i];
+        if (!ShouldShowRoom(room)) continue;
+        total += GetRoomHeight(room);
     }
     return total;
 }
@@ -43,12 +54,14 @@ static int GetTotalWorldHeight(void) {
 static void EnsureRoomTexturesLoaded(void) {
     int roomCount = (int)(sizeof(rooms) / sizeof(rooms[0]));
     for (int i = 0; i < roomCount; i++) {
-        if (rooms[i].textureLoaded) continue;
-        if (rooms[i].name == NULL || rooms[i].name[0] == '\0') continue;
-        Image* img = GetTexture(rooms[i].name);
+        RoomDef *room = &rooms[i];
+        if (!ShouldShowRoom(room)) continue;
+        if (room->textureLoaded) continue;
+        if (room->name == NULL || room->name[0] == '\0') continue;
+        Image* img = GetTexture(room->name);
         if (img == NULL || img->data == NULL) continue;
-        rooms[i].texture = LoadTextureFromImage(*img);
-        rooms[i].textureLoaded = true;
+        room->texture = LoadTextureFromImage(*img);
+        room->textureLoaded = true;
     }
 }
 
@@ -65,8 +78,9 @@ void DrawRoom(void) {
     int yOffset = 0;
     for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {
         RoomDef* room = &rooms[i];
-        int roomH = GetRoomHeight(room); 
+        if (!ShouldShowRoom(room)) continue;
 
+        int roomH = GetRoomHeight(room); 
         int roomScreenY = yOffset - (int)cameraY;
 
         if (roomScreenY + roomH < 0 || roomScreenY > windowHeight) {
