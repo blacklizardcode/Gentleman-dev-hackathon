@@ -27,8 +27,8 @@ void Camera_Update(int worldHeight, int windowHeight, float deltaTime) {
         cameraY -= wheel * mouseWheelSpeed;
     }
 
-    // Mouse drag (right button)
-    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+    // Mouse drag (LEft button)
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
         int mouseY = GetMouseY();
         if (!dragging) {
             dragging = true;
