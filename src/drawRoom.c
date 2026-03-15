@@ -86,7 +86,9 @@ void DrawRoom(void) {
         }
 
         Rectangle destRec = {0, (float)roomScreenY, (float)windowWidth, (float)roomH};
-        bool hover = (room->name != NULL && room->name[0] != '\0') && IsMouseOverRect(destRec);
+
+        // --- Hover: suppressed while buy-menu is open ---
+        bool hover = (room->name != NULL && room->name[0] != '\0') && IsRoomHovered(destRec);
 
         if (room->textureLoaded) {
             Rectangle sourceRec = {0, 0, (float)room->texture.width, (float)room->texture.height};
@@ -99,9 +101,8 @@ void DrawRoom(void) {
         if (hover) {
             DrawRectangleLinesEx(destRec, 4, WHITE);
 
-            // --- Click on "BuyNewRoom" button opens the buy menu ---
-            if (strcmp(room->name, "BuyNewRoom") == 0 && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                // Re-roll the selection each time the button is pressed
+            // --- Click on "BuyNewRoom" opens the buy menu ---
+            if (strcmp(room->name, "BuyNewRoom") == 0 && IsRoomClicked(destRec)) {
                 GenerateRoomSelection();
                 RoomSelect = true;
             }

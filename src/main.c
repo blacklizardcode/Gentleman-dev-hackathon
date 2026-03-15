@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "drawRoom.h"
 #include "BuyRoom.h"
+#include "mouse.h"
 
 // Texture list
 TextureEntry myTextures[] = {
@@ -37,6 +38,9 @@ int main(void)
     GenerateRoomSelection();
 
     while (!WindowShouldClose()) {
+
+        // --- Reset click-consumption guard (must be first!) ---
+        Mouse_NewFrame();
 
         // --- ESC closes the buy menu ---
         if (RoomSelect && IsKeyPressed(KEY_ESCAPE)) {

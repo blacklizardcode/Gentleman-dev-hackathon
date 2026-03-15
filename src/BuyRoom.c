@@ -80,7 +80,9 @@ static const char* GetCardTextureName(const char* roomName) {
 }
 
 // -------------------------------------------------------
-//  Draw Buy-Room UI  — nur 3 schwebende Karten, kein UI
+//  Draw Buy-Room UI  — 3 schwebende Karten
+//  Hover-Effekt: simpler weißer Rand (kein gefülltes Rechteck,
+//  da die Karten PNGs mit Transparenz sind).
 // -------------------------------------------------------
 
 void DrawBuyRoomUi(void) {
@@ -92,12 +94,13 @@ void DrawBuyRoomUi(void) {
     int sw = GetScreenWidth();
     int sh = GetScreenHeight();
 
-    int padding    = (int)(sw * 0.02f);
-    int maxCardH   = (int)(sh * 0.80f);
+    int padding  = (int)(sw * 0.02f);
+    int maxCardH = (int)(sh * 0.80f);
 
     float scaledW[SELECTED_ROOM_COUNT];
     float scaledH[SELECTED_ROOM_COUNT];
 
+    // --- Load / cache textures and compute scaled sizes ---
     for (int i = 0; i < SELECTED_ROOM_COUNT; i++) {
         scaledW[i] = 0;
         scaledH[i] = 0;
@@ -118,17 +121,41 @@ void DrawBuyRoomUi(void) {
         }
     }
 
+    // --- Compute layout ---
     float totalWidth = 0;
     for (int i = 0; i < SELECTED_ROOM_COUNT; i++) totalWidth += scaledW[i];
     totalWidth += (float)(padding * (SELECTED_ROOM_COUNT - 1));
 
+    // --- Draw cards ---
     float curX = (sw - totalWidth) / 2.0f;
     for (int i = 0; i < SELECTED_ROOM_COUNT; i++) {
         if (cardTex[i].id == 0) { curX += padding; continue; }
+
         float cardY = (sh - scaledH[i]) / 2.0f;
         Rectangle src  = {0, 0, (float)cardTex[i].width, (float)cardTex[i].height};
         Rectangle dest = {curX, cardY, scaledW[i], scaledH[i]};
+
+        // Draw the card PNG (transparency is respected by raylib automatically)
         DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+
+        // --- Hover: simpler weißer Rand ---
+        // Wir zeichnen den Rahmen um das Bounding-Rectangle der Karte.
+        // Da es ein PNG ist, bleibt der Hintergrund dahinter sichtbar;
+        // ein gefülltes Rechteck würde die Transparenz überdecken,
+        // daher nur DrawRectangleLinesEx.
+        if (IsCardHovered(dest)) {
+            // Rand 3px innen damit er nicht über andere Karten ragt
+            Rectangle border = {dest.x + 2, dest.y + 2, dest.width - 4, dest.height - 4};
+            DrawRectangleLinesEx(border, 3, WHITE);
+
+            // --- Klick: Zimmer kaufen ---
+            if (IsCardClicked(dest)) {
+                // TODO: Kauflogik hier einfügen
+                // Beispiel: AddRoomToHotel(selectedRooms[i]);
+                RoomSelect = false; // Menü schließen
+            }
+        }
+
         curX += scaledW[i] + padding;
     }
 }
