@@ -142,7 +142,6 @@ void DrawRoom(void) {
 
             // clicking "BuyNewRoom" opens the buy menu
             if (strcmp(name, "BuyNewRoom") == 0 && IsRoomClicked(destRec)) {
-                GenerateRoomSelection();
                 RoomSelect = true;
             }
         }

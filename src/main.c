@@ -45,7 +45,7 @@ int main(void)
     int screenHeight = 450;
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(screenWidth, screenHeight, "TrainBuilder");
+    InitWindow(screenWidth, screenHeight, "Summer Hotel Manage");
     SetTargetFPS(60);
 
     LoadAllTextures(myTextures, textureCount);

@@ -87,8 +87,6 @@ static const char* GetCardTextureName(const char* roomName) {
 // -------------------------------------------------------
 
 void DrawBuyRoomUi(void) {
-    if (!selectionInitialized) GenerateRoomSelection();
-
     static Texture2D cardTex[SELECTED_ROOM_COUNT]            = {{0}};
     static const char* cardTexNameCache[SELECTED_ROOM_COUNT] = {NULL};
 
@@ -156,8 +154,8 @@ void DrawBuyRoomUi(void) {
             // Click: buy the room
             if (IsCardClicked(dest)) {
                 addRoomToList(selectedRooms[i]);
+                GenerateRoomSelection();
                 RoomSelect = false;
-                selectionInitialized = false;
             }
         }
 
