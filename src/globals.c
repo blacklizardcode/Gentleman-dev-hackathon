@@ -98,3 +98,18 @@ bool RoomSelect = false;
 int levl   = 1;
 int monney = 500;
 int guests = 0;
+
+// XP system
+int xp           = 0;
+int xpForNextLevel = 100;   // XP needed for level 2; grows each level
+
+void AddXP(int amount) {
+    xp += amount;
+    while (xp >= xpForNextLevel) {
+        xp -= xpForNextLevel;
+        levl++;
+        // Each level requires 20% more XP than the previous one
+        xpForNextLevel = (int)(xpForNextLevel * 1.2f);
+        printf("[Level Up!] Now level %d  (next level needs %d XP)\n", levl, xpForNextLevel);
+    }
+}

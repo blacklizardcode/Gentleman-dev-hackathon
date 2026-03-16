@@ -1,6 +1,7 @@
 #include "gamelogic.h"
 #include "globals.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 /*-------------------------------------------------
     Timing constants
@@ -18,15 +19,56 @@
 #define INCOME_INTERVAL   10.0f
 
 /*-------------------------------------------------
+    XP constants
+    *** Adjust XP rewards here! ***
+-------------------------------------------------*/
+
+#define XP_PER_CHECKIN      5    // XP when a guest checks in
+#define XP_PER_CHECKOUT     2    // XP when a guest checks out
+#define XP_PER_INCOME_TICK  3    // XP each time a room earns income
+#define XP_PER_ROOM_BUY    20    // XP when a room is purchased (called from BuyRoom.c via AddXP)
+
+/*-------------------------------------------------
+    Level-up notification state
+-------------------------------------------------*/
+
+static bool  leveledUpThisFrame  = false;
+static int   levelUpDisplayLevel = 0;
+static float levelUpTimer        = 0.0f;
+
+#define LEVELUP_DISPLAY_SECONDS  3.0f   // how long the message stays on screen
+
+bool GameLogic_JustLeveledUp(void) {
+    return levelUpTimer > 0.0f;
+}
+
+const char *GameLogic_LevelUpMessage(void) {
+    if (levelUpTimer > 0.0f)
+        return TextFormat("LEVEL UP!  Now Level %d", levelUpDisplayLevel);
+    return NULL;
+}
+
+/*-------------------------------------------------
     Helper: simple pseudo-random float in [mn, mx]
-    Uses a linear congruential generator so we
-    don't need to call srand() again here.
 -------------------------------------------------*/
 static float SimpleRand(float mn, float mx) {
     static unsigned int seed = 12345;
     seed = seed * 1664525u + 1013904223u;
-    float t = (float)(seed & 0xFFFF) / 65535.0f;   // 0..1
+    float t = (float)(seed & 0xFFFF) / 65535.0f;
     return mn + t * (mx - mn);
+}
+
+/*-------------------------------------------------
+    Internal: wrapper around AddXP that also
+    detects level-ups and sets the display timer.
+-------------------------------------------------*/
+static void EarnXP(int amount) {
+    int levelBefore = levl;
+    AddXP(amount);
+    if (levl > levelBefore) {
+        levelUpDisplayLevel = levl;
+        levelUpTimer        = LEVELUP_DISPLAY_SECONDS;
+    }
 }
 
 /*-------------------------------------------------
@@ -34,6 +76,12 @@ static float SimpleRand(float mn, float mx) {
 -------------------------------------------------*/
 void GameLogic_Update(float deltaTime) {
     int totalGuests = 0;
+
+    // Tick down the level-up display timer
+    if (levelUpTimer > 0.0f) {
+        levelUpTimer -= deltaTime;
+        if (levelUpTimer < 0.0f) levelUpTimer = 0.0f;
+    }
 
     for (int i = 0; i < roomListCount; i++) {
         RoomInstance *inst = &roomList[i];
@@ -51,13 +99,13 @@ void GameLogic_Update(float deltaTime) {
                 inst->checkinTimer -= deltaTime;
                 if (inst->checkinTimer <= 0.0f) {
                     inst->currentGuests++;
-                    // schedule next check-in, or park the timer when full
                     inst->checkinTimer = (inst->currentGuests < rt->guestCapacity)
                                          ? CHECKIN_INTERVAL
                                          : 999999.0f;
-                    // start checkout timer if none is running yet
                     if (inst->checkoutTimer <= 0.0f)
                         inst->checkoutTimer = SimpleRand(CHECKOUT_MIN, CHECKOUT_MAX);
+
+                    EarnXP(XP_PER_CHECKIN);  // XP for check-in
 
                     printf("[Check-in]  %s  guests: %d/%d\n",
                            inst->name, inst->currentGuests, rt->guestCapacity);
@@ -69,12 +117,13 @@ void GameLogic_Update(float deltaTime) {
                 inst->checkoutTimer -= deltaTime;
                 if (inst->checkoutTimer <= 0.0f) {
                     inst->currentGuests--;
-                    // restart check-in timer now that a slot is free
                     inst->checkinTimer  = CHECKIN_INTERVAL;
-                    // schedule next checkout if guests remain
                     inst->checkoutTimer = (inst->currentGuests > 0)
                                           ? SimpleRand(CHECKOUT_MIN, CHECKOUT_MAX)
                                           : 0.0f;
+
+                    EarnXP(XP_PER_CHECKOUT);  // XP for check-out
+
                     printf("[Check-out] %s  guests: %d/%d\n",
                            inst->name, inst->currentGuests, rt->guestCapacity);
                 }
@@ -96,6 +145,8 @@ void GameLogic_Update(float deltaTime) {
 
                 if (earned > 0) {
                     monney += earned;
+                    EarnXP(XP_PER_INCOME_TICK);  // XP for earning income
+
                     printf("[Income] %s  +%d  (total: %d)\n",
                            inst->name, earned, monney);
                 }

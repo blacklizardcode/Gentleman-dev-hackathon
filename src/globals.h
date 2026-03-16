@@ -66,4 +66,11 @@ extern int levl;
 extern int monney;
 extern int guests;   // total guests in the hotel (for UI)
 
+// XP system
+extern int xp;           // current XP points
+extern int xpForNextLevel; // XP needed to reach next level
+
+// Adds XP and handles leveling up. Call this whenever XP is earned.
+void AddXP(int amount);
+
 #endif // GLOBALS_H

@@ -32,6 +32,11 @@ add_executable(MyProgram
 
 target_link_libraries(MyProgram PRIVATE raylib)
 
+# Link math library on non-Windows platforms (e.g. Linux/macOS)
+if(NOT WIN32)
+    target_link_libraries(MyProgram PRIVATE m)
+endif()
+
 add_custom_command(TARGET MyProgram POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/src/surse

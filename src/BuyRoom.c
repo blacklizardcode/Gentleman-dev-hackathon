@@ -8,6 +8,7 @@
 #include "BuyRoom.h"
 #include "mouse.h"
 #include "globals.h"
+#include "gamelogic.h"
 
 // -------------------------------------------------------
 //  Room Selection (3 random rooms for the current level)
@@ -146,17 +147,6 @@ void DrawBuyRoomUi(void) {
         Color tint = canAfford ? WHITE : (Color){120, 120, 120, 200};
         DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, tint);
 
-        // Show price below the card
-        if (rt != NULL) {
-            const char *priceText = TextFormat("%d G", rt->cost);
-            int fontSize   = (int)(sw * 0.018f);
-            if (fontSize < 12) fontSize = 12;
-            int textW      = MeasureText(priceText, fontSize);
-            int textX      = (int)(dest.x + dest.width / 2.0f) - textW / 2;
-            int textY      = (int)(dest.y + dest.height) + 6;
-            Color priceCol = canAfford ? GREEN : RED;
-            DrawText(priceText, textX, textY, fontSize, priceCol);
-        }
 
         // Hover: white border (only when affordable)
         if (canAfford && IsCardHovered(dest)) {
@@ -213,6 +203,9 @@ void addRoomToList(const char *roomName) {
 
     monney -= rt->cost;
     printf("Bought '%s' for %d G. Remaining money: %d\n", roomName, rt->cost, monney);
+
+    // XP reward for buying a room
+    AddXP(20);
 
     RoomList_Add(roomName);
 }
