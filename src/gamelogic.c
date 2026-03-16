@@ -23,10 +23,10 @@
     *** Adjust XP rewards here! ***
 -------------------------------------------------*/
 
-#define XP_PER_CHECKIN      5    // XP when a guest checks in
-#define XP_PER_CHECKOUT     2    // XP when a guest checks out
-#define XP_PER_INCOME_TICK  3    // XP each time a room earns income
-#define XP_PER_ROOM_BUY    20    // XP when a room is purchased (called from BuyRoom.c via AddXP)
+#define XP_PER_CHECKIN      8    // XP when a guest checks in
+#define XP_PER_CHECKOUT     3    // XP when a guest checks out
+#define XP_PER_INCOME_TICK  5    // XP each time a room earns income
+#define XP_PER_ROOM_BUY    30    // XP when a room is purchased (called from BuyRoom.c via AddXP)
 
 /*-------------------------------------------------
     Level-up notification state
