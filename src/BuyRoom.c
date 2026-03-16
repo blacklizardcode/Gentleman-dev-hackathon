@@ -76,6 +76,8 @@ static const char* GetCardTextureName(const char* roomName) {
     if (strcmp(roomName, "PresidentialSuite") == 0) return "PresidentialSuiteCard";
     if (strcmp(roomName, "room")              == 0) return "RoomCard";
     if (strcmp(roomName, "Suites")            == 0) return "SuiteCard";
+    if (strcmp(roomName, "Sauna")             == 0) return "SaunaCard";
+    if (strcmp(roomName, "MovieTheater")      == 0) return "MovieTheaterCard";
     return NULL;
 }
 

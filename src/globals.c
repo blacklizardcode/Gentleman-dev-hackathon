@@ -9,17 +9,13 @@
 
 const RoomType RoomTypes[] = {
     {"FrontDesk",         1}, // not buyable
-    {"kitchen",           2},
     {"room",              1},
+    {"kitchen",           2},
     {"Suites",            4},
     {"PresidentialSuite", 5},
-    {"swimmingPool",      6},
-    {"Restaurant",        7},
-    {"Bar",               8},
-    {"RoomService",       9},
-    {"Sauna",            10},
-    {"MovieTheater",     11},
-    {"Disco",            12},
+    {"Sauna",             6},
+    {"MovieTheater",      7},
+    {"Restaurant",        8},
     {"BuyNewRoom",        1}, // not buyable (internal placeholder)
 };
 
@@ -83,4 +79,4 @@ bool RoomSelect = false;
 /*-------------------------------------------------
     Level
 -------------------------------------------------*/
-int levl = 5;
+int levl = 50;

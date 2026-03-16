@@ -25,10 +25,12 @@ TextureEntry myTextures[] = {
     {"Suites",               "surse/Images/Rooms/suite.png"},
 
     // --- Cards ---
-    {"kitchenCard",          "surse/Images/Cards/kitchenCard.png"},
-    {"PresidentialSuiteCard","surse/Images/Cards/PresidentialSuiteCard.png"},
-    {"RoomCard",             "surse/Images/Cards/RoomCard.png"},
-    {"SuiteCard",            "surse/Images/Cards/SuiteCard.png"},
+    {"kitchenCard",           "surse/Images/Cards/kitchenCard.png"},
+    {"PresidentialSuiteCard", "surse/Images/Cards/PresidentialSuiteCard.png"},
+    {"RoomCard",              "surse/Images/Cards/RoomCard.png"},
+    {"SuiteCard",             "surse/Images/Cards/SuiteCard.png"},
+    {"SaunaCard",             "surse/Images/Cards/SaunaCard.png"},
+    {"MovieTheaterCard",      "surse/Images/Cards/MovieTheaterCard.png"},
 };
 
 int textureCount = sizeof(myTextures) / sizeof(myTextures[0]);
