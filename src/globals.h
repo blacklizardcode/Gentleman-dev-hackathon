@@ -52,5 +52,6 @@ extern bool RoomSelect;
     Level
 -------------------------------------------------*/
 extern int levl;
-
+extern int monney;
+extern int guests;
 #endif // GLOBALS_H

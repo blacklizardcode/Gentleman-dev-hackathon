@@ -80,3 +80,5 @@ bool RoomSelect = false;
     Level
 -------------------------------------------------*/
 int levl = 50;
+int monney = 0;
+int guests = 0;

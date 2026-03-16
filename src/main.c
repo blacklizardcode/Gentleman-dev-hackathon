@@ -12,6 +12,9 @@
 TextureEntry myTextures[] = {
     // --- UI ---
     {"BuyNewRoom",           "surse/Images/BuyNewRoom.png"},
+    {"coin",   "surse/Images/Ui/coin.png"},
+    {"guests", "surse/Images/Ui/guests.png"},
+    {"levl",   "surse/Images/Ui/levl.png"},
 
     // --- Rooms ---
     {"basicRoom",            "surse/Images/Rooms/basicRoom.png"},
