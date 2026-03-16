@@ -7,14 +7,24 @@
 #include "mouse.h"
 
 // Texture list
+// Room name (left) must exactly match the RoomType name in globals.c.
+// File path (right) is relative to the executable directory.
 TextureEntry myTextures[] = {
-    {"basicRoom",            "surse/Images/Rooms/basicRoom.png"},//
-    {"BuyNewRoom",           "surse/Images/BuyNewRoom.png"},//
-    {"FrontDesk",            "surse/Images/Rooms/FrontDesk.png"},//
-    {"kitchen",              "surse/Images/Rooms/kitchen.png"},//
-    {"room",                 "surse/Images/Rooms/room.png"},//
-    {"PresidentialSuite",    "surse/Images/Rooms/PresidentialSuite.png"},
-    // Card images
+    // --- UI ---
+    {"BuyNewRoom",           "surse/Images/BuyNewRoom.png"},
+
+    // --- Rooms ---
+    {"basicRoom",            "surse/Images/Rooms/basicRoom.png"},
+    {"FrontDesk",            "surse/Images/Rooms/FrontDesk.png"},
+    {"kitchen",              "surse/Images/Rooms/kitchen.png"},
+    {"room",                 "surse/Images/Rooms/room.png"},
+    {"Restaurant",           "surse/Images/Rooms/restauramt.png"},
+    {"Sauna",                "surse/Images/Rooms/sauna.png"},
+    {"MovieTheater",         "surse/Images/Rooms/Movie.png"},
+    {"PresidentialSuite",    "surse/Images/Rooms/PresiSuite.png"},
+    {"Suites",               "surse/Images/Rooms/suite.png"},
+
+    // --- Cards ---
     {"kitchenCard",          "surse/Images/Cards/kitchenCard.png"},
     {"PresidentialSuiteCard","surse/Images/Cards/PresidentialSuiteCard.png"},
     {"RoomCard",             "surse/Images/Cards/RoomCard.png"},
@@ -32,16 +42,21 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "TrainBuilder");
     SetTargetFPS(60);
 
+    // load all textures
     LoadAllTextures(myTextures, textureCount);
 
+    // initialise hotel room list: BuyNewRoom (top) + FrontDesk (bottom)
     RoomList_Init();
 
+    // generate the first card selection
     GenerateRoomSelection();
 
     while (!WindowShouldClose()) {
 
+        // reset click-consumption guard (must be first!)
         Mouse_NewFrame();
 
+        // ESC closes the buy menu
         if (RoomSelect && IsKeyPressed(KEY_ESCAPE)) {
             RoomSelect = false;
         }
