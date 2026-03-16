@@ -8,16 +8,17 @@
 
 // Texture list
 TextureEntry myTextures[] = {
-    {"basicRoom",           "surse/Images/Rooms/basicRoom.png"},
-    {"BuyNewRoom",          "surse/Images/BuyNewRoom.png"},
-    {"FrontDesk",           "surse/Images/Rooms/FrontDesk.png"},
-    {"kitchen",             "surse/Images/Rooms/kitchen.png"},
-    {"room",                "surse/Images/Rooms/room.png"},
+    {"basicRoom",            "surse/Images/Rooms/basicRoom.png"},//
+    {"BuyNewRoom",           "surse/Images/BuyNewRoom.png"},//
+    {"FrontDesk",            "surse/Images/Rooms/FrontDesk.png"},//
+    {"kitchen",              "surse/Images/Rooms/kitchen.png"},//
+    {"room",                 "surse/Images/Rooms/room.png"},//
+    {"PresidentialSuite",    "surse/Images/Rooms/PresidentialSuite.png"},
     // Card images
-    {"kitchenCard",         "surse/Images/Cards/kitchenCard.png"},
+    {"kitchenCard",          "surse/Images/Cards/kitchenCard.png"},
     {"PresidentialSuiteCard","surse/Images/Cards/PresidentialSuiteCard.png"},
-    {"RoomCard",            "surse/Images/Cards/RoomCard.png"},
-    {"SuiteCard",           "surse/Images/Cards/SuiteCard.png"},
+    {"RoomCard",             "surse/Images/Cards/RoomCard.png"},
+    {"SuiteCard",            "surse/Images/Cards/SuiteCard.png"},
 };
 
 int textureCount = sizeof(myTextures) / sizeof(myTextures[0]);
@@ -31,18 +32,16 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "TrainBuilder");
     SetTargetFPS(60);
 
-    // Load all textures once
     LoadAllTextures(myTextures, textureCount);
 
-    // Generate the initial room selection right at startup
+    RoomList_Init();
+
     GenerateRoomSelection();
 
     while (!WindowShouldClose()) {
 
-        // --- Reset click-consumption guard (must be first!) ---
         Mouse_NewFrame();
 
-        // --- ESC closes the buy menu ---
         if (RoomSelect && IsKeyPressed(KEY_ESCAPE)) {
             RoomSelect = false;
         }

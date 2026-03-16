@@ -26,7 +26,7 @@ void GenerateRoomSelection(void) {
 
     for (int i = 0; i < RoomTypesCount && availableCount < 64; i++) {
         const RoomType *rt = &RoomTypes[i];
-        if (strcmp(rt->name, "FrontDesk") == 0) continue;
+        if (strcmp(rt->name, "FrontDesk")  == 0) continue;
         if (strcmp(rt->name, "BuyNewRoom") == 0) continue;
         if (rt->unlockLevel <= levl) {
             available[availableCount++] = rt->name;
@@ -125,7 +125,6 @@ void DrawBuyRoomUi(void) {
     totalWidth += (float)(padding * (SELECTED_ROOM_COUNT - 1));
 
     // --- Draw cards ---
-    // Collect dest-rectangles so we can later check outside-click
     Rectangle cardDest[SELECTED_ROOM_COUNT];
     float curX = (sw - totalWidth) / 2.0f;
     for (int i = 0; i < SELECTED_ROOM_COUNT; i++) {
@@ -137,7 +136,6 @@ void DrawBuyRoomUi(void) {
         Rectangle dest = {curX, cardY, scaledW[i], scaledH[i]};
         cardDest[i] = dest;
 
-        // Draw the card PNG (transparency is respected by raylib automatically)
         DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, WHITE);
 
         // --- Hover: white border ---
@@ -147,9 +145,9 @@ void DrawBuyRoomUi(void) {
 
             // --- Click: buy room ---
             if (IsCardClicked(dest)) {
-                // TODO: add purchase logic here
-                // e.g.: AddRoomToHotel(selectedRooms[i]);
+                addRoomToList(selectedRooms[i]);
                 RoomSelect = false;
+                selectionInitialized = false;
             }
         }
 
@@ -169,4 +167,30 @@ void DrawBuyRoomUi(void) {
             RoomSelect = false;
         }
     }
+}
+
+// -------------------------------------------------------
+//  addRoomToList
+// -------------------------------------------------------
+
+void addRoomToList(const char *roomName) {
+    if (roomName == NULL) {
+        printf("addRoomToList: roomName ist NULL\n");
+        return;
+    }
+
+    bool valid = false;
+    for (int i = 0; i < RoomTypesCount; i++) {
+        if (strcmp(RoomTypes[i].name, roomName) == 0) {
+            valid = true;
+            break;
+        }
+    }
+
+    if (!valid) {
+        printf("addRoomToList: Unbekannter Raumtyp '%s'\n", roomName);
+        return;
+    }
+
+    RoomList_Add(roomName);
 }

@@ -8,62 +8,102 @@
 #include "globals.h"
 #include "BuyRoom.h"
 
-typedef struct RoomDef {
-    const char* name;
-    int height;
-    Texture2D texture;
-    bool textureLoaded;
-} RoomDef;
+// -----------------------------------------------------------
+//  Texture cache: one slot per unique room-type name
+// -----------------------------------------------------------
 
-static bool ShouldShowRoom(const RoomDef *room) {
-    (void)room;
-    return true;
+typedef struct {
+    const char *name;
+    Texture2D   texture;
+    bool        loaded;      // true  = GPU texture ready
+    bool        attempted;   // true  = lookup tried at least once (even if failed)
+} RoomTexCache;
+
+#define MAX_TEX_CACHE 64
+static RoomTexCache texCache[MAX_TEX_CACHE];
+static int          texCacheCount = 0;
+
+// Returns the cache slot for name, or NULL if not registered yet.
+static RoomTexCache *FindCacheSlot(const char *name) {
+    for (int i = 0; i < texCacheCount; i++) {
+        if (strcmp(texCache[i].name, name) == 0)
+            return &texCache[i];
+    }
+    return NULL;
 }
 
-static RoomDef rooms[] = {
-    {"BuyNewRoom", 100, {0}, false},
-    // Room list
-    {"", 5, {0}, false}, // spacer
-    {"room", 800, {0}, false},
-    {"basicRoom", 800, {0}, false},
-    {"kitchen", 800, {0}, false},
-    {"FrontDesk", 800, {0}, false},
-};
+static Texture2D *GetCachedTexture(const char *name) {
+    RoomTexCache *slot = FindCacheSlot(name);
+    if (slot && slot->loaded) return &slot->texture;
+    return NULL;
+}
 
-static int GetRoomHeight(RoomDef* room) {
-    if (room->textureLoaded && room->texture.width > 0) {
-        float aspect = (float)room->texture.height / (float)room->texture.width;
+static Texture2D *LoadAndCache(const char *name) {
+    RoomTexCache *slot = FindCacheSlot(name);
+
+    // Already tried and failed -- do not call GetTexture every frame.
+    if (slot && slot->attempted && !slot->loaded) return NULL;
+
+    // Already loaded successfully.
+    if (slot && slot->loaded) return &slot->texture;
+
+    // New entry -- register the slot first so we mark it as attempted.
+    if (texCacheCount >= MAX_TEX_CACHE) return NULL;
+    slot = &texCache[texCacheCount++];
+    slot->name      = name;
+    slot->loaded    = false;
+    slot->attempted = true;
+
+    Image *img = GetTexture(name);
+    if (img == NULL || img->data == NULL) {
+        // Missing texture -- slot stays attempted=true, loaded=false.
+        // GetTexture will never be called again for this name.
+        return NULL;
+    }
+
+    slot->texture = LoadTextureFromImage(*img);
+    slot->loaded  = true;
+    return &slot->texture;
+}
+
+// -----------------------------------------------------------
+//  Helper functions
+// -----------------------------------------------------------
+
+static int GetRoomH(const char *name) {
+    Texture2D *tex = GetCachedTexture(name);
+    if (tex && tex->width > 0) {
+        float aspect = (float)tex->height / (float)tex->width;
         return (int)((float)GetScreenWidth() * aspect);
     }
-    return room->height;
+    return 800; // Fallback
 }
 
 static int GetTotalWorldHeight(void) {
     int total = 0;
-    for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {
-        RoomDef *room = &rooms[i];
-        if (!ShouldShowRoom(room)) continue;
-        total += GetRoomHeight(room);
+    for (int i = 0; i < roomListCount; i++) {
+        const char *name = roomList[i].name;
+        if (name == NULL) continue;
+        if (name[0] == '\0') { total += 5; continue; } // spacer entry
+        total += GetRoomH(name);
     }
     return total;
 }
 
-static void EnsureRoomTexturesLoaded(void) {
-    int roomCount = (int)(sizeof(rooms) / sizeof(rooms[0]));
-    for (int i = 0; i < roomCount; i++) {
-        RoomDef *room = &rooms[i];
-        if (!ShouldShowRoom(room)) continue;
-        if (room->textureLoaded) continue;
-        if (room->name == NULL || room->name[0] == '\0') continue;
-        Image* img = GetTexture(room->name);
-        if (img == NULL || img->data == NULL) continue;
-        room->texture = LoadTextureFromImage(*img);
-        room->textureLoaded = true;
+static void EnsureAllTexturesLoaded(void) {
+    for (int i = 0; i < roomListCount; i++) {
+        const char *name = roomList[i].name;
+        if (name == NULL || name[0] == '\0') continue;
+        LoadAndCache(name); // only loads if not already cached
     }
 }
 
+// -----------------------------------------------------------
+//  DrawRoom
+// -----------------------------------------------------------
+
 void DrawRoom(void) {
-    EnsureRoomTexturesLoaded();
+    EnsureAllTexturesLoaded();
 
     int windowWidth  = GetScreenWidth();
     int windowHeight = GetScreenHeight();
@@ -73,36 +113,41 @@ void DrawRoom(void) {
     float cameraY = Camera_GetY();
 
     int yOffset = 0;
-    for (int i = 0; i < (int)(sizeof(rooms) / sizeof(rooms[0])); i++) {
-        RoomDef* room = &rooms[i];
-        if (!ShouldShowRoom(room)) continue;
+    for (int i = 0; i < roomListCount; i++) {
+        const char *name = roomList[i].name;
+        if (name == NULL) continue;
 
-        int roomH       = GetRoomHeight(room);
+        // Spacer
+        if (name[0] == '\0') { yOffset += 5; continue; }
+
+        int roomH       = GetRoomH(name);
         int roomScreenY = yOffset - (int)cameraY;
 
+        // Culling
         if (roomScreenY + roomH < 0 || roomScreenY > windowHeight) {
             yOffset += roomH;
             continue;
         }
 
         Rectangle destRec = {0, (float)roomScreenY, (float)windowWidth, (float)roomH};
+        Texture2D *tex    = GetCachedTexture(name);
 
-        // --- Hover: suppressed while buy-menu is open ---
-        bool hover = (room->name != NULL && room->name[0] != '\0') && IsRoomHovered(destRec);
+        // hover is suppressed while the buy menu is open
+        bool hover = IsRoomHovered(destRec);
 
-        if (room->textureLoaded) {
-            Rectangle sourceRec = {0, 0, (float)room->texture.width, (float)room->texture.height};
-            DrawTexturePro(room->texture, sourceRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
-        } else if (room->name != NULL && room->name[0] != '\0') {
+        if (tex && tex->id != 0) {
+            Rectangle srcRec = {0, 0, (float)tex->width, (float)tex->height};
+            DrawTexturePro(*tex, srcRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+        } else {
             DrawRectangleRec(destRec, LIGHTGRAY);
-            DrawText(TextFormat("Missing: %s", room->name), 20, roomScreenY + 20, 20, DARKGRAY);
+            DrawText(TextFormat("Missing: %s", name), 20, roomScreenY + 20, 20, DARKGRAY);
         }
 
         if (hover) {
             DrawRectangleLinesEx(destRec, 4, WHITE);
 
-            // --- Click on "BuyNewRoom" opens the buy menu ---
-            if (strcmp(room->name, "BuyNewRoom") == 0 && IsRoomClicked(destRec)) {
+            // clicking "BuyNewRoom" opens the buy menu
+            if (strcmp(name, "BuyNewRoom") == 0 && IsRoomClicked(destRec)) {
                 GenerateRoomSelection();
                 RoomSelect = true;
             }
@@ -111,18 +156,24 @@ void DrawRoom(void) {
         yOffset += roomH;
     }
 
+    // fill background below the world
     int worldBottomOnScreen = worldHeight - (int)cameraY;
     if (worldBottomOnScreen < windowHeight) {
-        DrawRectangle(0, worldBottomOnScreen, windowWidth, windowHeight - worldBottomOnScreen, DARKGRAY);
+        DrawRectangle(0, worldBottomOnScreen, windowWidth,
+                      windowHeight - worldBottomOnScreen, DARKGRAY);
     }
 }
 
+// -----------------------------------------------------------
+//  Cleanup / unload
+// -----------------------------------------------------------
+
 void UnloadRoomTextures(void) {
-    int roomCount = (int)(sizeof(rooms) / sizeof(rooms[0]));
-    for (int i = 0; i < roomCount; i++) {
-        if (!rooms[i].textureLoaded) continue;
-        UnloadTexture(rooms[i].texture);
-        rooms[i].textureLoaded = false;
-        rooms[i].texture = (Texture2D){0};
+    for (int i = 0; i < texCacheCount; i++) {
+        if (texCache[i].loaded) {
+            UnloadTexture(texCache[i].texture);
+            texCache[i].loaded = false;
+        }
     }
+    texCacheCount = 0;
 }

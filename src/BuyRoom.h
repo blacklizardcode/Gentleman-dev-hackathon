@@ -5,4 +5,6 @@ void GenerateRoomSelection(void);
 const char** GetSelectedRooms(void);
 void DrawBuyRoomUi(void);
 
-#endif 
+void addRoomToList(const char *roomName);
+
+#endif
