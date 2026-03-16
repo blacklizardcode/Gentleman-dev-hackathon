@@ -10,7 +10,7 @@
 #include "globals.h"
 
 // -------------------------------------------------------
-//  Room Selection (3 random rooms for current level)
+//  Room Selection (3 random rooms for the current level)
 // -------------------------------------------------------
 
 #define SELECTED_ROOM_COUNT 3
@@ -133,19 +133,37 @@ void DrawBuyRoomUi(void) {
         cardDest[i] = (Rectangle){0};
         if (cardTex[i].id == 0) { curX += padding; continue; }
 
+        const char* roomName = selectedRooms[i];
+        const RoomType *rt   = GetRoomTypeByName(roomName);
+        bool canAfford       = (rt == NULL) || (monney >= rt->cost);
+
         float cardY = (sh - scaledH[i]) / 2.0f;
         Rectangle src  = {0, 0, (float)cardTex[i].width, (float)cardTex[i].height};
         Rectangle dest = {curX, cardY, scaledW[i], scaledH[i]};
         cardDest[i] = dest;
 
-        DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, WHITE);
+        // Dim card if player cannot afford it
+        Color tint = canAfford ? WHITE : (Color){120, 120, 120, 200};
+        DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, tint);
 
-        // --- Hover: white border ---
-        if (IsCardHovered(dest)) {
+        // Show price below the card
+        if (rt != NULL) {
+            const char *priceText = TextFormat("%d G", rt->cost);
+            int fontSize   = (int)(sw * 0.018f);
+            if (fontSize < 12) fontSize = 12;
+            int textW      = MeasureText(priceText, fontSize);
+            int textX      = (int)(dest.x + dest.width / 2.0f) - textW / 2;
+            int textY      = (int)(dest.y + dest.height) + 6;
+            Color priceCol = canAfford ? GREEN : RED;
+            DrawText(priceText, textX, textY, fontSize, priceCol);
+        }
+
+        // Hover: white border (only when affordable)
+        if (canAfford && IsCardHovered(dest)) {
             Rectangle border = {dest.x + 2, dest.y + 2, dest.width - 4, dest.height - 4};
             DrawRectangleLinesEx(border, 3, WHITE);
 
-            // --- Click: buy room ---
+            // Click: buy the room
             if (IsCardClicked(dest)) {
                 addRoomToList(selectedRooms[i]);
                 RoomSelect = false;
@@ -177,22 +195,24 @@ void DrawBuyRoomUi(void) {
 
 void addRoomToList(const char *roomName) {
     if (roomName == NULL) {
-        printf("addRoomToList: roomName ist NULL\n");
+        printf("addRoomToList: roomName is NULL\n");
         return;
     }
 
-    bool valid = false;
-    for (int i = 0; i < RoomTypesCount; i++) {
-        if (strcmp(RoomTypes[i].name, roomName) == 0) {
-            valid = true;
-            break;
-        }
-    }
-
-    if (!valid) {
-        printf("addRoomToList: Unbekannter Raumtyp '%s'\n", roomName);
+    const RoomType *rt = GetRoomTypeByName(roomName);
+    if (rt == NULL) {
+        printf("addRoomToList: unknown room type '%s'\n", roomName);
         return;
     }
+
+    // Funds check
+    if (monney < rt->cost) {
+        printf("addRoomToList: not enough money! need %d, have %d\n", rt->cost, monney);
+        return;
+    }
+
+    monney -= rt->cost;
+    printf("Bought '%s' for %d G. Remaining money: %d\n", roomName, rt->cost, monney);
 
     RoomList_Add(roomName);
 }

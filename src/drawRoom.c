@@ -23,7 +23,6 @@ typedef struct {
 static RoomTexCache texCache[MAX_TEX_CACHE];
 static int          texCacheCount = 0;
 
-// Returns the cache slot for name, or NULL if not registered yet.
 static RoomTexCache *FindCacheSlot(const char *name) {
     for (int i = 0; i < texCacheCount; i++) {
         if (strcmp(texCache[i].name, name) == 0)
@@ -55,11 +54,7 @@ static Texture2D *LoadAndCache(const char *name) {
     slot->attempted = true;
 
     Image *img = GetTexture(name);
-    if (img == NULL || img->data == NULL) {
-        // Missing texture -- slot stays attempted=true, loaded=false.
-        // GetTexture will never be called again for this name.
-        return NULL;
-    }
+    if (img == NULL || img->data == NULL) return NULL;
 
     slot->texture = LoadTextureFromImage(*img);
     slot->loaded  = true;
@@ -76,7 +71,7 @@ static int GetRoomH(const char *name) {
         float aspect = (float)tex->height / (float)tex->width;
         return (int)((float)GetScreenWidth() * aspect);
     }
-    return 800; // Fallback
+    return 800; // fallback
 }
 
 static int GetTotalWorldHeight(void) {
@@ -94,7 +89,7 @@ static void EnsureAllTexturesLoaded(void) {
     for (int i = 0; i < roomListCount; i++) {
         const char *name = roomList[i].name;
         if (name == NULL || name[0] == '\0') continue;
-        LoadAndCache(name); // only loads if not already cached
+        LoadAndCache(name);
     }
 }
 
@@ -132,7 +127,6 @@ void DrawRoom(void) {
         Rectangle destRec = {0, (float)roomScreenY, (float)windowWidth, (float)roomH};
         Texture2D *tex    = GetCachedTexture(name);
 
-        // hover is suppressed while the buy menu is open
         bool hover = IsRoomHovered(destRec);
 
         if (tex && tex->id != 0) {

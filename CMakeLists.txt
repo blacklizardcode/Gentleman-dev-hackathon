@@ -27,6 +27,7 @@ add_executable(MyProgram
     src/mouse.c
     src/globals.c
     src/BuyRoom.c
+    src/gamelogic.c
 )
 
 target_link_libraries(MyProgram PRIVATE raylib)

@@ -5,10 +5,11 @@
 #include "drawRoom.h"
 #include "BuyRoom.h"
 #include "mouse.h"
+#include "gamelogic.h"
 
 // Texture list
-// Room name (left) must exactly match the RoomType name in globals.c.
-// File path (right) is relative to the executable directory.
+// Left name must match the RoomType name in globals.c exactly.
+// Right path is relative to the executable directory.
 TextureEntry myTextures[] = {
     // --- UI ---
     {"BuyNewRoom",           "surse/Images/BuyNewRoom.png"},
@@ -47,24 +48,24 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "TrainBuilder");
     SetTargetFPS(60);
 
-    // load all textures
     LoadAllTextures(myTextures, textureCount);
-
-    // initialise hotel room list: BuyNewRoom (top) + FrontDesk (bottom)
     RoomList_Init();
-
-    // generate the first card selection
     GenerateRoomSelection();
 
     while (!WindowShouldClose()) {
 
-        // reset click-consumption guard (must be first!)
+        float dt = GetFrameTime();
+
+        // Reset click-consumption guard (must be first!)
         Mouse_NewFrame();
 
         // ESC closes the buy menu
         if (RoomSelect && IsKeyPressed(KEY_ESCAPE)) {
             RoomSelect = false;
         }
+
+        // Game logic (guests, income)
+        GameLogic_Update(dt);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);

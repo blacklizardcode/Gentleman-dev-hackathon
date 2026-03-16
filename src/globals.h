@@ -7,40 +7,51 @@
 
 /*-------------------------------------------------
     Room Types  (catalogue of all buyable rooms)
+
+    Fields:
+      name          - internal name (must match texture name)
+      unlockLevel   - player level required to unlock
+      cost          - purchase price
+      guestCapacity - max guests that can stay at once (0 = not a bedroom)
+      incomePerGuest- money earned per guest per "day"
+      dailyIncome   - flat daily income regardless of guests (service rooms)
+
+    *** Adjust all balancing values here! ***
 -------------------------------------------------*/
 
 typedef struct {
-    const char *name;   // matches texture + identifier
-    int unlockLevel;    // player level required to unlock
+    const char *name;
+    int  unlockLevel;
+    int  cost;
+    int  guestCapacity;   // 0 = not a bedroom
+    int  incomePerGuest;  // income per guest per day
+    int  dailyIncome;     // flat daily income (service room)
 } RoomType;
 
 extern const RoomType RoomTypes[];
 extern const int RoomTypesCount;
 
+// Returns a pointer to the RoomType with the given name, or NULL.
+const RoomType *GetRoomTypeByName(const char *name);
+
 /*-------------------------------------------------
     Room Instance List  (rooms built in the hotel)
-    Dynamic — grows as new rooms are purchased.
-    Layout order (top to bottom):
-      [0]      BuyNewRoom
-      [1..n-2] purchased rooms (newest at top)
-      [n-1]    FrontDesk
 -------------------------------------------------*/
 
 typedef struct {
-    const char *name;   // points to a RoomType.name (no owned memory)
+    const char *name;          // points to RoomType.name (no owned memory)
+    int  currentGuests;        // guests currently checked in
+    float checkoutTimer;       // seconds until the next guest checks out
+    float checkinTimer;        // seconds until the next guest checks in
+    float incomeTimer;         // seconds until the next income tick
 } RoomInstance;
 
 #define MAX_ROOM_INSTANCES 256
 
-extern RoomInstance roomList[];     // currently built rooms
-extern int          roomListCount;  // number of entries
+extern RoomInstance roomList[];
+extern int          roomListCount;
 
-// Inserts a room directly after the "BuyNewRoom" button (index 1),
-// so newly purchased rooms always appear at the top of the stack.
-// roomName must be a valid RoomType name.
 void RoomList_Add(const char *roomName);
-
-// Initialises the list: BuyNewRoom (top) + FrontDesk (bottom).
 void RoomList_Init(void);
 
 /*-------------------------------------------------
@@ -49,9 +60,10 @@ void RoomList_Init(void);
 extern bool RoomSelect;
 
 /*-------------------------------------------------
-    Level
+    Player Stats
 -------------------------------------------------*/
 extern int levl;
 extern int monney;
-extern int guests;
+extern int guests;   // total guests in the hotel (for UI)
+
 #endif // GLOBALS_H
