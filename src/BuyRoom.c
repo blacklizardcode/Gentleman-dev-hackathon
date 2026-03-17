@@ -145,7 +145,6 @@ void DrawBuyRoomUi(void) {
         Color tint = canAfford ? WHITE : (Color){120, 120, 120, 200};
         DrawTexturePro(cardTex[i], src, dest, (Vector2){0, 0}, 0.0f, tint);
 
-
         // Hover: white border (only when affordable)
         if (canAfford && IsCardHovered(dest)) {
             Rectangle border = {dest.x + 2, dest.y + 2, dest.width - 4, dest.height - 4};
@@ -162,7 +161,10 @@ void DrawBuyRoomUi(void) {
         curX += scaledW[i] + padding;
     }
 
-    // --- Click outside all cards closes the menu ---
+    static bool closeRequested = false;
+    const float CLOSE_CONFIRM_TIME = 0.5f;
+    static float confirmTimer = 0.0f;
+
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         bool overAnyCard = false;
         for (int i = 0; i < SELECTED_ROOM_COUNT; i++) {
@@ -171,9 +173,49 @@ void DrawBuyRoomUi(void) {
                 break;
             }
         }
+        
         if (!overAnyCard) {
-            RoomSelect = false;
+            if (!closeRequested) {
+                closeRequested = true;
+                confirmTimer = CLOSE_CONFIRM_TIME;
+            } else {
+                RoomSelect = false;
+                closeRequested = false;
+                confirmTimer = 0.0f;
+            }
+        } else {
+            closeRequested = false;
+            confirmTimer = 0.0f;
         }
+    }
+
+    if (confirmTimer > 0.0f) {
+        confirmTimer -= GetFrameTime();
+        if (confirmTimer <= 0.0f) {
+            closeRequested = false;
+        }
+    }
+
+    if (closeRequested) {
+        const char* hint = "klick agan to close";
+        int hintWidth = MeasureText(hint, 20);
+        
+        Rectangle hintBg = {
+            (sw - hintWidth - 20) / 2,
+            (float)sh - 50,
+            (float)hintWidth + 20,
+            30
+        };
+        DrawRectangleRec(hintBg, (Color){0, 0, 0, 180});
+        
+        DrawText(hint, (sw - hintWidth) / 2, sh - 45, 20, (Color){255, 255, 255, 255});
+        
+        // Kleiner Timer-Balken
+        float barWidth = 100.0f;
+        float barX = (sw - barWidth) / 2;
+        float barY = sh - 20;
+        DrawRectangle(barX, barY, barWidth, 4, (Color){100, 100, 100, 200});
+        DrawRectangle(barX, barY, barWidth * (confirmTimer / CLOSE_CONFIRM_TIME), 4, WHITE);
     }
 }
 
