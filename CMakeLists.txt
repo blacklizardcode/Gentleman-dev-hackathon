@@ -29,6 +29,7 @@ add_executable(MyProgram
     src/BuyRoom.c
     src/gamelogic.c
     src/topButton.c
+    src/tutorial.c
 )
 
 target_link_libraries(MyProgram PRIVATE raylib)

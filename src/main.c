@@ -79,6 +79,13 @@ int main(void)
             DrawBuyRoomUi();
         }
 
+        //tutorial: 
+        Tutorial_Update();
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            Tutorial_Skip();
+        }
+        Tutorial_Draw();
+        
         EndDrawing();
     }
 
