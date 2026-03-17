@@ -16,6 +16,7 @@ TextureEntry myTextures[] = {
     {"coin",   "surse/Images/Ui/coin.png"},
     {"guests", "surse/Images/Ui/guests.png"},
     {"levl",   "surse/Images/Ui/levl.png"},
+    {"goUp",   "surse/Images/Ui/goUp.png"},
 
     // --- Rooms ---
     {"basicRoom",            "surse/Images/Rooms/basicRoom.png"},
@@ -71,6 +72,7 @@ int main(void)
         ClearBackground(RAYWHITE);
 
         DrawRoom();
+        DrawGoUpButton();
         DrawUi();
 
         if (RoomSelect) {

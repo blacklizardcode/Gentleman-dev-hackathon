@@ -52,3 +52,8 @@ void Camera_Update(int worldHeight, int windowHeight, float deltaTime) {
 float Camera_GetY(void) {
     return cameraY;
 }
+void Camera_ScrollToTop(void) {
+    cameraY = 0.0f;
+    // Also reset dragging state to prevent weird behavior
+    dragging = false;
+}

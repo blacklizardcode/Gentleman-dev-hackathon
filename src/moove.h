@@ -11,5 +11,6 @@ void Camera_Update(int worldHeight, int windowHeight, float deltaTime);
 
 // Returns the current vertical camera offset.
 float Camera_GetY(void);
+void Camera_ScrollToTop(void);
 
 #endif // MOOOVE_H
